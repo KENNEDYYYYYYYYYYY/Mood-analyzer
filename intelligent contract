@@ -1,0 +1,50 @@
+# { "Depends": "py-genlayer:test" }
+from genlayer import *
+
+class MoodAnalyzer(gl.Contract):
+    # Persistent fields must be declared in the class body with type annotations [1, 2]
+    last_advice: str
+
+    def __init__(self):
+        # Initialize the persistent state [2, 3]
+        self.last_advice = ""
+
+    @gl.public.write
+    def analyze_mood(self, mood_data: str) -> str:
+        """
+        Takes the 22 mood ratings and generates warm, human-like advice.
+        """
+        prompt = (
+            "You are a supportive, intuitive life coach. Your ONLY output must be a single, "
+            "unformatted JSON object. DO NOT use markdown or any explanation. "
+            "Based on the user's mood ratings, offer a warm, conversational piece of advice. "
+            "Don't be robotic; sound like a friend who truly understands. "
+            "Structure: { \"advice\": \"[Your warm advice here]\", \"suggested_action\": \"[One specific thing they can do]\" }."
+            f"\n\nUser's Emotional State: {mood_data}"
+        )
+        
+        task = "Generate empathetic, human-like advice based on mood ratings."
+        
+        criteria = (
+            "The output must be a valid JSON object. "
+            "The 'advice' must be written in a warm, non-robotic, human tone."
+        )
+
+        # AI consensus call using the non-comparative equivalence principle [4, 5]
+        raw_result: str = gl.eq_principle.prompt_non_comparative(
+            lambda: gl.nondet.exec_prompt(prompt),
+            task=task,
+            criteria=criteria
+        )
+
+        # Correctly update the persistent class field [1, 6]
+        self.last_advice = raw_result
+        return raw_result
+
+    @gl.public.view
+    def get_latest_advice(self) -> str:
+        """
+        Returns the human-like advice stored in the contract.
+        """
+        # Returns data from the persistent state [3, 7]
+        return self.last_advice
